@@ -29,10 +29,10 @@ criterion = 'entropy'
 
 
 # 2. Name your project experiment
-mlflow.set_experiment("dt-1")
+# mlflow.set_experiment("dt-1")
 
 # Apply MLflow tracking
-with mlflow.start_run(run_name='run-2'):
+with mlflow.start_run():
     # Train the random forest model
     dt  = DecisionTreeClassifier(
         max_depth=max_depth,
