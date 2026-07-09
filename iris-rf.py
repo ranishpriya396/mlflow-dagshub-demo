@@ -23,7 +23,7 @@ max_depth = 10
 n_estimators = 4
 with mlflow.start_run():
     # Train
-    rf = DecisionTreeClassifier(max_depth=max_depth,n_estimators = n_estimators)
+    rf = RandomForestClassifier(max_depth=max_depth,n_estimators = n_estimators)
     rf.fit(X_train, y_train)
 
     # Predict
