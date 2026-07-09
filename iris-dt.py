@@ -24,15 +24,15 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Define the parameters for the Random Forest model
-max_depth = 12
-criterion = 'gini'
+max_depth = 10
+criterion = 'entropy'
 
 
 # 2. Name your project experiment
 mlflow.set_experiment("dt-1")
 
 # Apply MLflow tracking
-with mlflow.start_run(run_name='run-1'):
+with mlflow.start_run(run_name='run-2'):
     # Train the random forest model
     dt  = DecisionTreeClassifier(
         max_depth=max_depth,
