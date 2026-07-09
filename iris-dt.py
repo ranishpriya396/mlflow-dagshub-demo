@@ -62,10 +62,10 @@ with mlflow.start_run(run_name='run-2'):
     plot_path = "confusion_matrix.png"
     plt.savefig(plot_path)
     plt.close()
-    mlflow.log_artifact(__file__)
+    mlflow.log_artifact(plot_path)
 
 #     # Log the trained model artifact directly
-    mlflow.sklearn.log_model(dt, "random_forest_model")
+    mlflow.sklearn.log_model(dt,'decision-tree')
     mlflow.set_tag('auther', 'ranish')
     mlflow.set_tag('model', 'decision_tree')
 print('accuracy:', accuracy)
