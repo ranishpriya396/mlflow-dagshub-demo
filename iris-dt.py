@@ -1,71 +1,61 @@
 import mlflow
 import mlflow.sklearn
 from sklearn.datasets import load_iris
-from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
-mlflow.set_tracking_uri("https://dagshub.com/ranishpriya396/mlflow-dagshub-demo.mlflow")
 import dagshub
+
+# Initialize DagsHub tracking
+mlflow.set_tracking_uri("https://dagshub.com/ranishpriya396/mlflow-dagshub-demo.mlflow")
 dagshub.init(repo_owner='ranishpriya396', repo_name='mlflow-dagshub-demo', mlflow=True)
 
-
-# Load the iris dataset properly
+# Load data
 iris = load_iris()
-X = iris.data
-y = iris.target
-
-# Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    iris.data, iris.target, test_size=0.2, random_state=42
 )
 
-# Define the parameters for the Random Forest model
+# Hyperparameters
 max_depth = 10
 criterion = 'entropy'
 
-
-# 2. Name your project experiment
-# mlflow.set_experiment("dt-1")
-
-# Apply MLflow tracking
 with mlflow.start_run():
-    # Train the random forest model
-    dt  = DecisionTreeClassifier(
-        max_depth=max_depth,
-        criterion = criterion
-    )
+    # Train
+    dt = DecisionTreeClassifier(max_depth=max_depth, criterion=criterion)
     dt.fit(X_train, y_train)
 
-    # Predict and evaluate
+    # Predict
     y_pred = dt.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
 
-    # Log metrics and parameters to MLflow
+    # Log metrics & corrected parameter names
     mlflow.log_metric('accuracy', accuracy)
-    mlflow.log_param('n_estimators', criterion)
+    mlflow.log_param('criterion', criterion)  # Fixed parameter name
     mlflow.log_param('max_depth', max_depth)
-
-    # Generate, save, and log the confusion matrix plot
-    cm = confusion_matrix(y_test, y_pred)
-    plt.figure(figsize=(6, 4))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                xticklabels=iris.target_names, yticklabels=iris.target_names)
-    plt.ylabel('Actual')
-    plt.xlabel('Predicted')
-    plt.title('Confusion Matrix')
-
-    # Save the figure locally and log it as an MLflow artifact
-    plot_path = "confusion_matrix.png"
-    plt.savefig(plot_path)
-    plt.close()
-    mlflow.log_artifact(plot_path)
-
-#     # Log the trained model artifact directly
-    mlflow.sklearn.log_model(dt,'decision-tree')
-    mlflow.set_tag('auther', 'ranish')
+    
+    # Metadata tags
+    mlflow.set_tag('author', 'ranish')        # Fixed typo
     mlflow.set_tag('model', 'decision_tree')
-print('accuracy:', accuracy)
+
+    # Generate Confusion Matrix
+    cm = confusion_matrix(y_test, y_pred)
+    fig, ax = plt.subplots(figsize=(6, 4))     # Using explicit subplot objects is safer
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=iris.target_names, yticklabels=iris.target_names, ax=ax)
+    ax.set_ylabel('Actual')
+    ax.set_xlabel('Predicted')
+    ax.set_title('Confusion Matrix')
+
+    # FIXED ORDER: Save -> Close -> Log
+    plot_path = "confusion_matrix.png"
+    fig.savefig(plot_path, bbox_inches='tight') 
+    plt.close(fig)                              
+    mlflow.log_artifact(plot_path)              
+
+    # Log model
+    mlflow.sklearn.log_model(dt, 'decision-tree')
+
+print('Accuracy:', accuracy)
